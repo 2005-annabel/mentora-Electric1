@@ -1,5 +1,5 @@
-Django==6.0.3
-django-mongodb-backend==6.0.2
+Django==5.2.9
+django-mongodb-backend==5.2.0
 pymongo==4.16.0
 dnspython==2.8.0
 gunicorn==23.0.0
