@@ -1,0 +1,125 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-5">
+    <h1>📈 Transaction Statistics</h1>
+    
+    <!-- Summary Cards -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card text-white bg-primary">
+                <div class="card-body">
+                    <h6 class="card-title">Total Transactions</h6>
+                    <h2>{{ total_transactions }}</h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-white bg-success">
+                <div class="card-body">
+                    <h6 class="card-title">Total Revenue</h6>
+                    <h2>${{ total_revenue }}</h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-white bg-info">
+                <div class="card-body">
+                    <h6 class="card-title">Completed</h6>
+                    <h2>{{ completed_transactions }}</h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-white bg-warning">
+                <div class="card-body">
+                    <h6 class="card-title">Pending</h6>
+                    <h2>{{ pending_transactions }}</h2>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Recent Stats -->
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5>Last 30 Days</h5>
+                </div>
+                <div class="card-body">
+                    <p><strong>Revenue:</strong> ${{ recent_revenue }}</p>
+                    <p><strong>Transactions:</strong> {{ recent_count }}</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card text-white bg-danger">
+                <div class="card-body">
+                    <h6 class="card-title">Failed Transactions</h6>
+                    <h2>{{ failed_transactions }}</h2>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Breakdown Tables -->
+    <div class="row">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5>By Transaction Type</h5>
+                </div>
+                <table class="table mb-0">
+                    <thead>
+                        <tr>
+                            <th>Type</th>
+                            <th>Count</th>
+                            <th>Total</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in by_type %}
+                        <tr>
+                            <td>{{ item.transaction_type|upper }}</td>
+                            <td>{{ item.count }}</td>
+                            <td>${{ item.total }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5>By Status</h5>
+                </div>
+                <table class="table mb-0">
+                    <thead>
+                        <tr>
+                            <th>Status</th>
+                            <th>Count</th>
+                            <th>Total</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in by_status %}
+                        <tr>
+                            <td>{{ item.status|upper }}</td>
+                            <td>{{ item.count }}</td>
+                            <td>${{ item.total }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    
+    <div class="mt-4">
+        <a href="{% url 'transactions_list' %}" class="btn btn-primary">← Back to Transactions</a>
+        <a href="{% url 'home' %}" class="btn btn-secondary">Home</a>
+    </div>
+</div>
+{% endblock %}
