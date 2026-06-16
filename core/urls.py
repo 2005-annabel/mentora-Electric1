@@ -33,5 +33,8 @@ urlpatterns = [
    path('logout/', views.logout_user, name='logout'),
    path("dashboard/", views.dashboard, name="dashboard"),
    path('products/json/', views.products_json, name='products_json'),
+    path('superuser/transactions/', views.transactions_list, name='transactions_list'),
+    path('superuser/transactions/<int:transaction_id>/', views.transaction_detail, name='transaction_detail'),
+    path('superuser/transactions/stats/', views.transaction_stats, name='transaction_stats'),
 ]
     
