@@ -1,0 +1,93 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h3>Transaction #{{ transaction.id }}</h3>
+                </div>
+                <div class="card-body">
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <h6 class="text-muted">Transaction Type</h6>
+                            <p class="fs-5">{{ transaction.get_transaction_type_display }}</p>
+                        </div>
+                        <div class="col-md-6">
+                            <h6 class="text-muted">Status</h6>
+                            <p class="fs-5">
+                                {% if transaction.status == 'completed' %}
+                                    <span class="badge bg-success">{{ transaction.get_status_display }}</span>
+                                {% elif transaction.status == 'pending' %}
+                                    <span class="badge bg-warning">{{ transaction.get_status_display }}</span>
+                                {% else %}
+                                    <span class="badge bg-danger">{{ transaction.get_status_display }}</span>
+                                {% endif %}
+                            </p>
+                        </div>
+                    </div>
+                    
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <h6 class="text-muted">Amount</h6>
+                            <p class="fs-4 fw-bold text-success">${{ transaction.amount }}</p>
+                        </div>
+                        <div class="col-md-6">
+                            <h6 class="text-muted">Payment Method</h6>
+                            <p class="fs-5">{{ transaction.payment_method|default:"N/A" }}</p>
+                        </div>
+                    </div>
+                    
+                    <hr>
+                    
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <h6 class="text-muted">User</h6>
+                            <p class="fs-5">
+                                {% if transaction.user %}
+                                    {{ transaction.user.username }} ({{ transaction.user.email }})
+                                {% else %}
+                                    <span class="text-muted">No user associated</span>
+                                {% endif %}
+                            </p>
+                        </div>
+                        <div class="col-md-6">
+                            <h6 class="text-muted">Order</h6>
+                            <p class="fs-5">
+                                {% if transaction.order %}
+                                    <a href="#">Order #{{ transaction.order.id }}</a>
+                                {% else %}
+                                    <span class="text-muted">No order associated</span>
+                                {% endif %}
+                            </p>
+                        </div>
+                    </div>
+                    
+                    <hr>
+                    
+                    <h6 class="text-muted">Description</h6>
+                    <p>{{ transaction.description|default:"No description provided" }}</p>
+                    
+                    <hr>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h6 class="text-muted">Created At</h6>
+                            <p>{{ transaction.created_at|date:"M d, Y H:i:s" }}</p>
+                        </div>
+                        <div class="col-md-6">
+                            <h6 class="text-muted">Last Updated</h6>
+                            <p>{{ transaction.updated_at|date:"M d, Y H:i:s" }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="mt-4">
+        <a href="{% url 'transactions_list' %}" class="btn btn-secondary">← Back to Transactions</a>
+    </div>
+</div>
+{% endblock %}
