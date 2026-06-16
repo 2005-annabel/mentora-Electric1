@@ -344,4 +344,102 @@ def products_json(request):
 
     return JsonResponse({'products': data})
 
+# ----------------------
+# SUPERUSER - TRANSACTIONS
+# ----------------------
+
+@superuser_required
+def transactions_list(request):
+    """Display all transactions (Superuser only)"""
+    # Get all transactions ordered by date
+    transactions = Transaction.objects.select_related('user', 'order').all()
+    
+    # Filter by status if provided
+    status_filter = request.GET.get('status', 'all')
+    if status_filter != 'all' and status_filter:
+        transactions = transactions.filter(status=status_filter)
+    
+    # Filter by transaction type if provided
+    type_filter = request.GET.get('type', 'all')
+    if type_filter != 'all' and type_filter:
+        transactions = transactions.filter(transaction_type=type_filter)
+    
+    # Search by username or order ID
+    search_query = request.GET.get('search', '').strip()
+    if search_query:
+        transactions = transactions.filter(
+            Q(user__username__icontains=search_query) |
+            Q(order__id__icontains=search_query)
+        )
+    
+    # Pagination
+    paginator = Paginator(transactions, 20)  # Show 20 transactions per page
+    page_number = request.GET.get('page', 1)
+    page_obj = paginator.get_page(page_number)
+    
+    context = {
+        'page_obj': page_obj,
+        'transactions': page_obj.object_list,
+        'status_filter': status_filter,
+        'type_filter': type_filter,
+        'search_query': search_query,
+        'status_choices': Transaction._meta.get_field('status').choices,
+        'type_choices': Transaction._meta.get_field('transaction_type').choices,
+    }
+    
+    return render(request, 'transactions_list.html', context)
+
+
+@superuser_required
+def transaction_detail(request, transaction_id):
+    """View detailed transaction information"""
+    transaction = Transaction.objects.select_related('user', 'order').get(id=transaction_id)
+    
+    context = {
+        'transaction': transaction,
+    }
+    
+    return render(request, 'transaction_detail.html', context)
+
+
+@superuser_required
+def transaction_stats(request):
+    """Display transaction statistics and analytics"""
+    from django.db.models import Sum, Count
+    from datetime import timedelta
+    from django.utils import timezone
+    
+    # Total statistics
+    total_transactions = Transaction.objects.count()
+    total_revenue = Transaction.objects.filter(status='completed').aggregate(Sum('amount'))['amount__sum'] or 0
+    completed_transactions = Transaction.objects.filter(status='completed').count()
+    failed_transactions = Transaction.objects.filter(status='failed').count()
+    pending_transactions = Transaction.objects.filter(status='pending').count()
+    
+    # Last 30 days statistics
+    last_30_days = timezone.now() - timedelta(days=30)
+    recent_transactions = Transaction.objects.filter(created_at__gte=last_30_days)
+    recent_revenue = recent_transactions.filter(status='completed').aggregate(Sum('amount'))['amount__sum'] or 0
+    recent_count = recent_transactions.count()
+    
+    # Transactions by type
+    by_type = Transaction.objects.values('transaction_type').annotate(count=Count('id'), total=Sum('amount'))
+    
+    # Transactions by status
+    by_status = Transaction.objects.values('status').annotate(count=Count('id'), total=Sum('amount'))
+    
+    context = {
+        'total_transactions': total_transactions,
+        'total_revenue': total_revenue,
+        'completed_transactions': completed_transactions,
+        'failed_transactions': failed_transactions,
+        'pending_transactions': pending_transactions,
+        'recent_revenue': recent_revenue,
+        'recent_count': recent_count,
+        'by_type': by_type,
+        'by_status': by_status,
+    }
+    
+    return render(request, 'transaction_stats.html', context)
+
 
